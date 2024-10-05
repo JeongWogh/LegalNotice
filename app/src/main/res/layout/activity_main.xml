@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:text="법적 고지 내용"
+        android:text="이거 보고 약 쳐먹어도 내 알빠 아님 ㅇㅋ?"
         android:scrollbars="vertical" />
 
     <Button
