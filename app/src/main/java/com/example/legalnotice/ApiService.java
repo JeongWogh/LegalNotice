@@ -1,6 +1,7 @@
 package com.example.legalnotice;
 
 import com.example.legalnotice.models.LegalNoticeData; // 올바른 경로로 수정
+import com.example.legalnotice.models.PersonalInfoData;
 import com.example.legalnotice.models.Pill;
 import java.util.List;
 import retrofit2.Call;
@@ -28,6 +29,14 @@ public interface ApiService {
     @POST("/api/pills/delete")
     Call<Void> deletePill(@Body Pill pill);
 
+    @GET("/api/check-legal-notice")
+    Call<Void> checkLegalNotice(@Query("userId") String userId);
 
+    // 개인 정보 저장 엔드포인트
+    @POST("/api/personal-info/save")
+    Call<Void> savePersonalInfo(@Body PersonalInfoData personalInfo);
 
+    // 개인 정보 초기화 엔드포인트
+    @POST("/api/personal-info/reset")
+    Call<Void> resetPersonalInfo(@Body PersonalInfoData personalInfo);
 }
