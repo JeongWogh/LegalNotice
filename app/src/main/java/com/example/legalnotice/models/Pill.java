@@ -2,15 +2,31 @@ package com.example.legalnotice.models;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import com.google.gson.annotations.SerializedName;
 
 public class Pill implements Parcelable {
+    @SerializedName("user_id")
     private String userId;
+
+    @SerializedName("itemSeq")
     private String itemSeq;
+
+    @SerializedName("itemName")
     private String itemName;
+
+    @SerializedName("efcyQesitm")
     private String efcyQesitm;
+
+    @SerializedName("atpnQesitm")
     private String atpnQesitm;
+
+    @SerializedName("seQesitm")
     private String seQesitm;
+
+    @SerializedName("etcotc")
     private String etcotc;
+
+    @SerializedName("itemImage")
     private String itemImage;
 
     // 생성자

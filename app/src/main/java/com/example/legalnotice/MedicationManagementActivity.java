@@ -87,8 +87,10 @@ public class MedicationManagementActivity extends AppCompatActivity {
 
     private void deletePillFromDatabase(Pill pill) {
         String deviceId = DeviceUtil.getDeviceId(this);
+        pill.setUserId(deviceId); // 기기의 고유 ID를 userId로 설정
+
         ApiService apiService = ApiClient.getClient().create(ApiService.class);
-        Call<Void> call = apiService.deletePill(pill.getItemSeq(), deviceId);
+        Call<Void> call = apiService.deletePill(pill);
 
         call.enqueue(new Callback<Void>() {
             @Override
@@ -107,4 +109,6 @@ public class MedicationManagementActivity extends AppCompatActivity {
             }
         });
     }
+
+
 }

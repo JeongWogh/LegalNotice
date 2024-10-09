@@ -25,7 +25,9 @@ public interface ApiService {
     @POST("/legal-notice")
     Call<Void> sendLegalNotice(@Body LegalNoticeData legalNoticeData);
 
-    @DELETE("/api/pills/delete")
-    Call<Void> deletePill(@Query("itemSeq") String itemSeq, @Query("user_id") String userId);
+    @POST("/api/pills/delete")
+    Call<Void> deletePill(@Body Pill pill);
+
+
 
 }

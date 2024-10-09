@@ -55,14 +55,14 @@ public class PillAdapter extends RecyclerView.Adapter<PillAdapter.PillViewHolder
                 .into(holder.pillImageView);
 
         // 추가 버튼 이벤트 설정 (검색 화면에서만 활성화됨)
-        if (!showDeleteButton) {
+        if (!showDeleteButton && holder.addButton != null) {
             holder.addButton.setVisibility(View.VISIBLE);
             holder.addButton.setOnClickListener(v -> {
                 if (addListener != null) {
                     addListener.onPillAdd(pill);
                 }
             });
-        } else {
+        } else if (holder.addButton != null) {
             holder.addButton.setVisibility(View.GONE);
         }
 
@@ -74,6 +74,8 @@ public class PillAdapter extends RecyclerView.Adapter<PillAdapter.PillViewHolder
                     deleteListener.onPillDelete(pill);
                 }
             });
+        } else if (holder.deleteButton != null) {
+            holder.deleteButton.setVisibility(View.GONE);
         }
     }
 
@@ -94,11 +96,17 @@ public class PillAdapter extends RecyclerView.Adapter<PillAdapter.PillViewHolder
             pillImageView = itemView.findViewById(R.id.pillImageView);
             pillNameTextView = itemView.findViewById(R.id.pillNameTextView);
             pillInfoTextView = itemView.findViewById(R.id.pillInfoTextView);
-            addButton = itemView.findViewById(R.id.addButton);
 
-            // deleteButton은 item_pill_delete 레이아웃에만 존재함
-            if (itemView.findViewById(R.id.deleteButton) != null) {
-                deleteButton = itemView.findViewById(R.id.deleteButton);
+            // addButton은 item_pill 레이아웃에서만 존재할 수 있음
+            addButton = itemView.findViewById(R.id.addButton);
+            if (addButton == null) {
+                addButton = null;
+            }
+
+            // deleteButton은 item_pill_delete 레이아웃에서만 존재할 수 있음
+            deleteButton = itemView.findViewById(R.id.deleteButton);
+            if (deleteButton == null) {
+                deleteButton = null;
             }
         }
     }

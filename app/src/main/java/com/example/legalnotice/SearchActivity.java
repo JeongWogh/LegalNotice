@@ -17,6 +17,8 @@ import com.example.legalnotice.models.Pill;
 import com.example.legalnotice.ApiClient;
 import com.example.legalnotice.ApiService;
 import com.example.legalnotice.DeviceUtil;
+import com.google.gson.Gson;
+
 import java.util.List;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -100,6 +102,11 @@ public class SearchActivity extends AppCompatActivity {
         String deviceId = DeviceUtil.getDeviceId(this);
         pill.setUserId(deviceId); // 기기 고유 ID를 사용자 ID로 설정
 
+        // JSON 변환 로그 추가
+        Gson gson = new Gson();
+        String json = gson.toJson(pill);
+        Log.d("SearchActivity", "전송할 JSON: " + json);
+
         ApiService apiService = ApiClient.getClient().create(ApiService.class);
         Call<Void> call = apiService.addPill(pill);
 
@@ -108,11 +115,9 @@ public class SearchActivity extends AppCompatActivity {
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
                     Log.d("SearchActivity", "약 정보가 DB에 성공적으로 저장되었습니다.");
-                    // 토스트 메시지 표시
                     Toast.makeText(SearchActivity.this, "약이 성공적으로 추가되었습니다.", Toast.LENGTH_SHORT).show();
                 } else {
                     Log.e("SearchActivity", "DB 저장 실패: " + response.code());
-                    // 실패 시 토스트 메시지 표시
                     Toast.makeText(SearchActivity.this, "약 추가에 실패했습니다. 다시 시도해주세요.", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -124,4 +129,6 @@ public class SearchActivity extends AppCompatActivity {
             }
         });
     }
+
+
 }
