@@ -5,14 +5,11 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import com.example.legalnotice.models.LegalNoticeData;
 import androidx.appcompat.app.AppCompatActivity;
-
-import com.example.legalnotice.LegalNoticeData;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -30,8 +27,8 @@ public class MainActivity extends AppCompatActivity {
         agreeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // 사용자 ID와 날짜를 설정
-                String userId = "user123"; // 실제 앱에서는 사용자 ID를 가져오는 로직을 구현해야 함
+                // 기기 고유 ID를 사용자 ID로 설정
+                String userId = DeviceUtil.getDeviceId(MainActivity.this);
                 String currentDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
                 boolean accepted = true; // '동의' 버튼을 눌렀으므로 true
 
@@ -45,10 +42,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void sendLegalNoticeData(LegalNoticeData legalNoticeData) {
-        // ApiClient를 통해 Retrofit 인스턴스 가져오기
         ApiService apiService = ApiClient.getClient().create(ApiService.class);
 
-        // POST 요청
         Call<Void> call = apiService.sendLegalNotice(legalNoticeData);
 
         call.enqueue(new Callback<Void>() {
