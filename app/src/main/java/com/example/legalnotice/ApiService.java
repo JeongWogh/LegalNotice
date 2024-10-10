@@ -1,5 +1,8 @@
 package com.example.legalnotice;
 
+import androidx.compose.foundation.interaction.Interaction;
+
+import com.example.legalnotice.models.DrugInteraction;
 import com.example.legalnotice.models.LegalNoticeData; // 올바른 경로로 수정
 import com.example.legalnotice.models.PersonalInfoData;
 import com.example.legalnotice.models.Pill;
@@ -39,4 +42,8 @@ public interface ApiService {
     // 개인 정보 초기화 엔드포인트
     @POST("/api/personal-info/reset")
     Call<Void> resetPersonalInfo(@Body PersonalInfoData personalInfo);
+
+    // 상호작용 정보를 가져오는 API 호출 정의
+    @GET("/api/getDrugInteractions")
+    Call<List<DrugInteraction>> getDrugInteractions(@Query("drugItemName") String drugName);
 }

@@ -2,50 +2,83 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
         android:padding="16dp">
 
+        <!-- 홈 버튼을 왼쪽 상단에 배치 -->
+        <ImageView
+            android:id="@+id/homeButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_home"
+            android:contentDescription="홈으로 돌아가기"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginEnd="8dp" />
+
+        <!-- 약물 이미지 -->
         <ImageView
             android:id="@+id/itemImageView"
             android:layout_width="match_parent"
             android:layout_height="200dp"
+            android:layout_below="@id/homeButton"
             android:scaleType="centerInside"
             android:contentDescription="약 이미지" />
 
+        <!-- 약물 이름 -->
         <TextView
             android:id="@+id/itemNameTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_below="@id/itemImageView"
             android:textSize="24sp"
             android:textStyle="bold"
             android:paddingTop="16dp" />
 
+        <!-- 약물 효능 -->
         <TextView
             android:id="@+id/efcyTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_below="@id/itemNameTextView"
             android:paddingTop="8dp" />
 
+        <!-- 주의 사항 -->
         <TextView
             android:id="@+id/atpnTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_below="@id/efcyTextView"
             android:paddingTop="8dp" />
 
+        <!-- 부작용 -->
         <TextView
             android:id="@+id/seTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_below="@id/atpnTextView"
             android:paddingTop="8dp" />
 
+        <!-- 기타 정보 -->
         <TextView
             android:id="@+id/etcotcTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_below="@id/seTextView"
             android:paddingTop="8dp" />
 
-    </LinearLayout>
+        <!-- 상호작용 버튼 -->
+        <Button
+            android:id="@+id/interactionButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="상호작용 보기"
+            android:layout_below="@id/etcotcTextView"
+            android:layout_marginTop="16dp"
+            android:layout_alignParentEnd="true" />
+
+    </RelativeLayout>
+
 </ScrollView>

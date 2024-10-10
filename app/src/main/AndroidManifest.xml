@@ -35,6 +35,10 @@
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
 
         <activity
+            android:name=".FullImageActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+
+        <activity
             android:name=".PillDetailActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
 
