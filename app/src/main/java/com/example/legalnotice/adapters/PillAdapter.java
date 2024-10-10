@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.legalnotice.R;
 import com.example.legalnotice.models.Pill;
 import com.squareup.picasso.Picasso;
+import java.util.ArrayList;
 import java.util.List;
 
 public class PillAdapter extends RecyclerView.Adapter<PillAdapter.PillViewHolder> {
@@ -23,15 +24,21 @@ public class PillAdapter extends RecyclerView.Adapter<PillAdapter.PillViewHolder
         void onPillAdd(Pill pill);
     }
 
+    public interface OnPillClickListener {
+        void onPillClick(Pill pill);
+    }
+
     private List<Pill> pillList;
     private OnPillDeleteListener deleteListener;
     private OnPillAddListener addListener;
+    private OnPillClickListener clickListener;
     private boolean showDeleteButton;
 
-    public PillAdapter(List<Pill> pillList, OnPillDeleteListener deleteListener, OnPillAddListener addListener, boolean showDeleteButton) {
-        this.pillList = pillList;
+    public PillAdapter(List<Pill> pillList, OnPillDeleteListener deleteListener, OnPillAddListener addListener, OnPillClickListener clickListener, boolean showDeleteButton) {
+        this.pillList = (pillList != null) ? pillList : new ArrayList<>(); // null 체크 및 초기화
         this.deleteListener = deleteListener;
         this.addListener = addListener;
+        this.clickListener = clickListener;
         this.showDeleteButton = showDeleteButton;
     }
 
@@ -47,12 +54,18 @@ public class PillAdapter extends RecyclerView.Adapter<PillAdapter.PillViewHolder
     public void onBindViewHolder(@NonNull PillViewHolder holder, int position) {
         Pill pill = pillList.get(position);
         holder.pillNameTextView.setText(pill.getItemName());
-        holder.pillInfoTextView.setText(pill.getEfcyQesitm());
 
         Picasso.get()
                 .load(pill.getItemImage())
                 .error(R.drawable.ic_default_image)
                 .into(holder.pillImageView);
+
+        // 클릭 리스너 설정 (약물 클릭 시)
+        holder.itemView.setOnClickListener(v -> {
+            if (clickListener != null) {
+                clickListener.onPillClick(pill);
+            }
+        });
 
         // 추가 버튼 이벤트 설정 (검색 화면에서만 활성화됨)
         if (!showDeleteButton && holder.addButton != null) {
@@ -81,13 +94,12 @@ public class PillAdapter extends RecyclerView.Adapter<PillAdapter.PillViewHolder
 
     @Override
     public int getItemCount() {
-        return pillList.size();
+        return pillList.size(); // null이 아니므로 바로 size() 호출 가능
     }
 
     public static class PillViewHolder extends RecyclerView.ViewHolder {
         ImageView pillImageView;
         TextView pillNameTextView;
-        TextView pillInfoTextView;
         Button addButton;
         Button deleteButton;
 
@@ -95,19 +107,8 @@ public class PillAdapter extends RecyclerView.Adapter<PillAdapter.PillViewHolder
             super(itemView);
             pillImageView = itemView.findViewById(R.id.pillImageView);
             pillNameTextView = itemView.findViewById(R.id.pillNameTextView);
-            pillInfoTextView = itemView.findViewById(R.id.pillInfoTextView);
-
-            // addButton은 item_pill 레이아웃에서만 존재할 수 있음
             addButton = itemView.findViewById(R.id.addButton);
-            if (addButton == null) {
-                addButton = null;
-            }
-
-            // deleteButton은 item_pill_delete 레이아웃에서만 존재할 수 있음
             deleteButton = itemView.findViewById(R.id.deleteButton);
-            if (deleteButton == null) {
-                deleteButton = null;
-            }
         }
     }
 }

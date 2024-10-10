@@ -19,6 +19,7 @@ import com.example.legalnotice.ApiService;
 import com.example.legalnotice.DeviceUtil;
 import com.google.gson.Gson;
 
+import java.util.ArrayList;
 import java.util.List;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -88,15 +89,27 @@ public class SearchActivity extends AppCompatActivity {
     }
 
     private void setupRecyclerView(List<Pill> pills) {
-        pillAdapter = new PillAdapter(pills, null, new PillAdapter.OnPillAddListener() {
+        // pills가 null일 경우 빈 리스트로 설정
+        pillAdapter = new PillAdapter((pills != null) ? pills : new ArrayList<>(), new PillAdapter.OnPillDeleteListener() {
+            @Override
+            public void onPillDelete(Pill pill) {
+                // 검색 화면에서는 삭제 기능이 필요 없으므로 빈 구현으로 남겨둡니다.
+            }
+        }, new PillAdapter.OnPillAddListener() {
             @Override
             public void onPillAdd(Pill pill) {
                 savePillToDatabase(pill);
+            }
+        }, new PillAdapter.OnPillClickListener() {
+            @Override
+            public void onPillClick(Pill pill) {
+                showPillDetails(pill);
             }
         }, false); // 검색 화면에서는 삭제 버튼을 표시하지 않으므로 false로 설정
 
         searchResultsRecyclerView.setAdapter(pillAdapter);
     }
+
 
     private void savePillToDatabase(Pill pill) {
         String deviceId = DeviceUtil.getDeviceId(this);
@@ -130,5 +143,10 @@ public class SearchActivity extends AppCompatActivity {
         });
     }
 
-
+    // 약물의 상세 정보를 표시하는 메소드
+    private void showPillDetails(Pill pill) {
+        Intent intent = new Intent(SearchActivity.this, PillDetailActivity.class);
+        intent.putExtra("pill", pill); // Pill 객체를 전달
+        startActivity(intent);
+    }
 }
