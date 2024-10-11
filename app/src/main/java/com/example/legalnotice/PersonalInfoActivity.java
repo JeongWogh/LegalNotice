@@ -35,6 +35,7 @@ public class PersonalInfoActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_personal_info);
 
+        // View 요소들을 초기화
         ageEditText = findViewById(R.id.ageEditText);
         genderRadioGroup = findViewById(R.id.genderRadioGroup);
         pregnantSwitch = findViewById(R.id.pregnantSwitch);
@@ -47,29 +48,29 @@ public class PersonalInfoActivity extends AppCompatActivity {
         // 기기 고유 ID를 사용자 ID로 사용
         userId = DeviceUtil.getDeviceId(this);
 
-        // 홈 버튼 클릭 시 메인 화면으로 이동
+        // 홈 버튼 클릭 시 메인 화면(NextActivity)으로 이동
         homeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(PersonalInfoActivity.this, NextActivity.class);
                 startActivity(intent);
-                finish();
+                finish(); // 현재 액티비티 종료
             }
         });
 
-        // 저장 버튼 클릭 이벤트
+        // 저장 버튼 클릭 시 정보 저장 메서드 호출
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                savePersonalInfo();
+                savePersonalInfo(); // 개인 정보 저장 메서드 호출
             }
         });
 
-        // 초기화 버튼 클릭 이벤트
+        // 초기화 버튼 클릭 시 정보 초기화 메서드 호출
         resetButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                resetPersonalInfo();
+                resetPersonalInfo(); // 개인 정보 초기화 메서드 호출
             }
         });
 
@@ -77,6 +78,7 @@ public class PersonalInfoActivity extends AppCompatActivity {
         loadPersonalInfo();
     }
 
+    // DB에서 사용자 정보를 불러오는 메서드
     private void loadPersonalInfo() {
         ApiService apiService = ApiClient.getClient().create(ApiService.class);
         Call<PersonalInfoData> call = apiService.getPersonalInfo(userId);
@@ -118,9 +120,7 @@ public class PersonalInfoActivity extends AppCompatActivity {
         });
     }
 
-
-
-
+    // 사용자 정보를 저장하는 메서드
     private void savePersonalInfo() {
         Integer age = ageEditText.getText().toString().trim().isEmpty() ? null : Integer.parseInt(ageEditText.getText().toString().trim());
         String gender = genderRadioGroup.getCheckedRadioButtonId() == R.id.maleRadioButton ? "남자" : "여자";
@@ -152,7 +152,9 @@ public class PersonalInfoActivity extends AppCompatActivity {
         });
     }
 
+    // 사용자 정보를 초기화하는 메서드
     private void resetPersonalInfo() {
+        // 초기화된 정보로 PersonalInfoData 객체 생성
         PersonalInfoData personalInfo = new PersonalInfoData(userId, null, null, false, false, null);
 
         ApiService apiService = ApiClient.getClient().create(ApiService.class);
@@ -182,6 +184,4 @@ public class PersonalInfoActivity extends AppCompatActivity {
             }
         });
     }
-
-
 }
