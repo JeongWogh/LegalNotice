@@ -17,6 +17,7 @@ import com.example.legalnotice.models.Pill;
 import com.example.legalnotice.ApiClient;
 import com.example.legalnotice.ApiService;
 import com.example.legalnotice.DeviceUtil;
+import com.example.legalnotice.models.SearchResponse;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
@@ -72,25 +73,32 @@ public class SearchActivity extends AppCompatActivity {
     // API를 호출하여 약물 정보를 검색하는 메서드
     private void searchPills(String query) {
         ApiService apiService = ApiClient.getClient().create(ApiService.class);
-        Call<List<Pill>> call = apiService.searchByName(query);
+        Call<SearchResponse> call = apiService.searchByName(query);
 
-        call.enqueue(new Callback<List<Pill>>() {
+        call.enqueue(new Callback<SearchResponse>() {
             @Override
-            public void onResponse(Call<List<Pill>> call, Response<List<Pill>> response) {
+            public void onResponse(Call<SearchResponse> call, Response<SearchResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    List<Pill> pills = response.body();
-                    setupRecyclerView(pills); // 검색 결과를 RecyclerView에 표시
+                    SearchResponse searchResponse = response.body();
+
+                    if (searchResponse.isSuccess()) {
+                        List<Pill> pills = searchResponse.getData();  // 응답에서 약물 데이터를 가져옴
+                        setupRecyclerView(pills);  // 검색 결과를 RecyclerView에 표시
+                    } else {
+                        Log.e("SearchActivity", "검색 실패: " + searchResponse.getMessage());
+                    }
                 } else {
                     Log.e("SearchActivity", "검색 실패: " + response.code());
                 }
             }
 
             @Override
-            public void onFailure(Call<List<Pill>> call, Throwable t) {
+            public void onFailure(Call<SearchResponse> call, Throwable t) {
                 Log.e("SearchActivity", "네트워크 오류: " + t.getMessage());
             }
         });
     }
+
 
     // RecyclerView를 설정하는 메서드
     private void setupRecyclerView(List<Pill> pills) {

@@ -13,10 +13,14 @@ import android.widget.TextView;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.legalnotice.models.DrugInteraction;
+import com.example.legalnotice.models.DrugInteractionResponse;
 import com.example.legalnotice.models.Pill;
 import com.example.legalnotice.ApiClient;
 import com.example.legalnotice.ApiService;
 import com.squareup.picasso.Picasso;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.List;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -89,17 +93,24 @@ public class PillDetailActivity extends AppCompatActivity {
     // 상호작용 정보를 가져오는 메서드
     private void fetchDrugInteractions(String drugName) {
         ApiService apiService = ApiClient.getClient().create(ApiService.class);
-        Call<List<DrugInteraction>> call = apiService.getDrugInteractions(drugName);
+        String deviceId = DeviceUtil.getDeviceId(this);  // userId로 사용될 기기 ID를 가져옵니다.
 
-        call.enqueue(new Callback<List<DrugInteraction>>() {
+        Call<DrugInteractionResponse> call = apiService.getDrugInteractions(drugName, deviceId);
+        call.enqueue(new Callback<DrugInteractionResponse>() {
             @Override
-            public void onResponse(Call<List<DrugInteraction>> call, Response<List<DrugInteraction>> response) {
+            public void onResponse(Call<DrugInteractionResponse> call, Response<DrugInteractionResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    List<DrugInteraction> interactions = response.body();
-                    if (!interactions.isEmpty()) {
-                        showInteractionDialog(interactions); // 상호작용 다이얼로그 표시
+                    DrugInteractionResponse interactionResponse = response.body();
+
+                    if (interactionResponse.isSuccess() && interactionResponse.getData() != null) {
+                        List<DrugInteraction> interactions = interactionResponse.getData();  // 응답에서 data 필드를 추출
+                        if (!interactions.isEmpty()) {
+                            showInteractionDialog(interactions);  // 상호작용 정보를 다이얼로그에 표시
+                        } else {
+                            showNoInteractionDialog();  // 상호작용 정보가 없을 경우
+                        }
                     } else {
-                        showNoInteractionDialog(); // 상호작용 정보가 없을 경우
+                        Log.e("PillDetailActivity", "상호작용 정보를 불러오는데 실패했습니다: " + interactionResponse.getMessage());
                     }
                 } else {
                     Log.e("PillDetailActivity", "상호작용 정보를 불러오는데 실패했습니다: " + response.code());
@@ -107,11 +118,14 @@ public class PillDetailActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<List<DrugInteraction>> call, Throwable t) {
+            public void onFailure(Call<DrugInteractionResponse> call, Throwable t) {
                 Log.e("PillDetailActivity", "네트워크 오류: " + t.getMessage());
             }
         });
     }
+
+
+
 
     // 상호작용 정보를 표시하는 다이얼로그
     private void showInteractionDialog(List<DrugInteraction> interactions) {
