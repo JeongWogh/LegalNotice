@@ -77,7 +77,17 @@
             android:text="상호작용 보기"
             android:layout_below="@id/etcotcTextView"
             android:layout_marginTop="16dp"
-            android:layout_alignParentEnd="true" />
+            android:layout_alignParentStart="true" />
+
+        <!-- 추가 버튼 -->
+        <Button
+            android:id="@+id/addMedicationButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="복용 약 추가"
+            android:layout_toEndOf="@id/interactionButton"
+            android:layout_alignTop="@id/interactionButton"
+            android:layout_marginStart="16dp" />
 
     </RelativeLayout>
 

@@ -31,9 +31,4 @@
             android:text="약 정보" />
     </LinearLayout>
 
-    <Button
-        android:id="@+id/addButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="추가" />
 </LinearLayout>

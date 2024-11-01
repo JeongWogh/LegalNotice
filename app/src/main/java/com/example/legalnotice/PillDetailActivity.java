@@ -6,10 +6,9 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.legalnotice.models.DrugInteraction;
@@ -17,10 +16,9 @@ import com.example.legalnotice.models.DrugInteractionResponse;
 import com.example.legalnotice.models.Pill;
 import com.example.legalnotice.ApiClient;
 import com.example.legalnotice.ApiService;
+import com.example.legalnotice.DeviceUtil;
+import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.List;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -28,7 +26,6 @@ import retrofit2.Response;
 
 public class PillDetailActivity extends AppCompatActivity {
 
-    // 뷰 요소 선언
     private ImageView pillImageView;
     private TextView pillNameTextView;
     private TextView pillEfcyTextView;
@@ -36,6 +33,7 @@ public class PillDetailActivity extends AppCompatActivity {
     private TextView pillSeTextView;
     private TextView pillEtcotcTextView;
     private Button interactionButton;
+    private Button addMedicationButton;
     private ImageView homeButton;
 
     @Override
@@ -51,6 +49,7 @@ public class PillDetailActivity extends AppCompatActivity {
         pillSeTextView = findViewById(R.id.seTextView);
         pillEtcotcTextView = findViewById(R.id.etcotcTextView);
         interactionButton = findViewById(R.id.interactionButton);
+        addMedicationButton = findViewById(R.id.addMedicationButton);
         homeButton = findViewById(R.id.homeButton);
 
         // Intent에서 전달된 Pill 객체 가져오기
@@ -67,33 +66,74 @@ public class PillDetailActivity extends AppCompatActivity {
             // Picasso 라이브러리를 사용하여 이미지 로딩
             Picasso.get()
                     .load(pill.getItemImage())
-                    .error(R.drawable.ic_default_image) // 이미지 로딩 실패 시 기본 이미지 설정
+                    .error(R.drawable.ic_default_image)
                     .into(pillImageView);
 
-            // 상호작용 버튼 클릭 시 이벤트 설정
+            // 상호작용 버튼 클릭 시 상호작용 정보를 가져오는 메서드 호출
             interactionButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    fetchDrugInteractions(pill.getItemName()); // 상호작용 정보를 가져오는 메서드 호출
+                    fetchDrugInteractions(pill.getItemName());
                 }
             });
 
-            // 홈 버튼 클릭 시 메인 화면(NextActivity)으로 이동
+            // 추가 버튼 클릭 이벤트 설정
+            addMedicationButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    savePillToDatabase(pill); // 약물 추가 메서드 호출
+                }
+            });
+
+            // 홈 버튼 클릭 시 메인 화면으로 이동
             homeButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     Intent intent = new Intent(PillDetailActivity.this, NextActivity.class);
                     startActivity(intent);
-                    finish(); // 현재 액티비티 종료
+                    finish();
                 }
             });
         }
     }
 
+    // 약물 추가 메서드
+    private void savePillToDatabase(Pill pill) {
+        String deviceId = DeviceUtil.getDeviceId(this);
+        pill.setUserId(deviceId); // 기기 고유 ID를 사용자 ID로 설정
+
+        // JSON 변환 로그 추가 (디버깅용)
+        Gson gson = new Gson();
+        String json = gson.toJson(pill);
+        Log.d("PillDetailActivity", "전송할 JSON: " + json);
+
+        ApiService apiService = ApiClient.getClient().create(ApiService.class);
+        Call<Void> call = apiService.addPill(pill);
+
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    Log.d("PillDetailActivity", "약 정보가 DB에 성공적으로 저장되었습니다.");
+                    Toast.makeText(PillDetailActivity.this, "약이 성공적으로 추가되었습니다.", Toast.LENGTH_SHORT).show();
+                } else {
+                    Log.e("PillDetailActivity", "DB 저장 실패: " + response.code());
+                    Toast.makeText(PillDetailActivity.this, "약 추가에 실패했습니다. 다시 시도해주세요.", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Log.e("PillDetailActivity", "네트워크 오류: " + t.getMessage());
+                Toast.makeText(PillDetailActivity.this, "네트워크 오류가 발생했습니다. 다시 시도해주세요.", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
     // 상호작용 정보를 가져오는 메서드
     private void fetchDrugInteractions(String drugName) {
         ApiService apiService = ApiClient.getClient().create(ApiService.class);
-        String deviceId = DeviceUtil.getDeviceId(this);  // userId로 사용될 기기 ID를 가져옵니다.
+        String deviceId = DeviceUtil.getDeviceId(this); // userId로 사용될 기기 ID를 가져옵니다.
 
         Call<DrugInteractionResponse> call = apiService.getDrugInteractions(drugName, deviceId);
         call.enqueue(new Callback<DrugInteractionResponse>() {
@@ -103,11 +143,11 @@ public class PillDetailActivity extends AppCompatActivity {
                     DrugInteractionResponse interactionResponse = response.body();
 
                     if (interactionResponse.isSuccess() && interactionResponse.getData() != null) {
-                        List<DrugInteraction> interactions = interactionResponse.getData();  // 응답에서 data 필드를 추출
+                        List<DrugInteraction> interactions = interactionResponse.getData();
                         if (!interactions.isEmpty()) {
-                            showInteractionDialog(interactions);  // 상호작용 정보를 다이얼로그에 표시
+                            showInteractionDialog(interactions); // 상호작용 정보를 다이얼로그에 표시
                         } else {
-                            showNoInteractionDialog();  // 상호작용 정보가 없을 경우
+                            showNoInteractionDialog(); // 상호작용 정보가 없을 경우
                         }
                     } else {
                         Log.e("PillDetailActivity", "상호작용 정보를 불러오는데 실패했습니다: " + interactionResponse.getMessage());
@@ -124,54 +164,26 @@ public class PillDetailActivity extends AppCompatActivity {
         });
     }
 
-
-
-
     // 상호작용 정보를 표시하는 다이얼로그
     private void showInteractionDialog(List<DrugInteraction> interactions) {
-        View dialogView = getLayoutInflater().inflate(R.layout.dialog_interaction, null);
-        LinearLayout interactionContainer = dialogView.findViewById(R.id.interactionContainer);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("상호 복용 금지 약물 정보");
 
-        // 상호작용 정보를 반복하면서 각 항목을 다이얼로그에 추가
+        StringBuilder message = new StringBuilder();
         for (DrugInteraction interaction : interactions) {
-            View itemView = getLayoutInflater().inflate(R.layout.item_interaction, null);
-            ImageView interactionImageView = itemView.findViewById(R.id.interactionImageView);
-            TextView interactionTextView = itemView.findViewById(R.id.interactionTextView);
-
-            // Picasso를 사용해 이미지 로드
-            Picasso.get()
-                    .load(interaction.getNoneItemImage())
-                    .error(R.drawable.ic_default_image) // 이미지 로딩 실패 시 기본 이미지
-                    .into(interactionImageView);
-
-            // 약물 이름과 성분 정보를 텍스트뷰에 설정
-            interactionTextView.setText("약물: " + interaction.getNoneItemName() + "\n성분: " + interaction.getNoneIngrName());
-
-            // 이미지 클릭 시 확대 화면으로 이동
-            interactionImageView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Intent intent = new Intent(PillDetailActivity.this, FullImageActivity.class);
-                    intent.putExtra("imageUrl", interaction.getNoneItemImage());
-                    startActivity(intent);
-                }
-            });
-
-            // interactionContainer에 항목 추가
-            interactionContainer.addView(itemView);
+            message.append("약물: ").append(interaction.getNoneItemName())
+                    .append("\n성분: ").append(interaction.getNoneIngrName())
+                    .append("\n\n");
         }
 
-        // AlertDialog를 사용해 상호작용 다이얼로그 표시
-        new AlertDialog.Builder(this)
-                .setTitle("상호 복용 금지 약물 정보")
-                .setView(dialogView) // 커스텀 뷰 설정
-                .setPositiveButton("확인", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.dismiss(); // 다이얼로그 닫기
-                    }
-                })
-                .show();
+        builder.setMessage(message.toString());
+        builder.setPositiveButton("확인", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+            }
+        });
+        builder.show();
     }
 
     // 상호작용 정보가 없을 때 표시하는 다이얼로그
@@ -182,7 +194,7 @@ public class PillDetailActivity extends AppCompatActivity {
                 .setPositiveButton("확인", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.dismiss(); // 다이얼로그 닫기
+                        dialogInterface.dismiss();
                     }
                 })
                 .show();

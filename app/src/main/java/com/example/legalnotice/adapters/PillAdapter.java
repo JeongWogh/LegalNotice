@@ -119,7 +119,6 @@ public class PillAdapter extends RecyclerView.Adapter<PillAdapter.PillViewHolder
             super(itemView);
             pillImageView = itemView.findViewById(R.id.pillImageView);
             pillNameTextView = itemView.findViewById(R.id.pillNameTextView);
-            addButton = itemView.findViewById(R.id.addButton);
             deleteButton = itemView.findViewById(R.id.deleteButton);
         }
     }

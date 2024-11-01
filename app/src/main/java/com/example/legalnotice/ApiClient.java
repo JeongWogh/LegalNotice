@@ -7,7 +7,7 @@ public class ApiClient {
     // 서버의 기본 URL 설정: 로컬 네트워크에 있는 Flask 서버의 IP와 포트 번호
     // 주석 처리된 부분은 에뮬레이터 환경에서 사용할 로컬 서버 IP
     //    private static final String BASE_URL = "http://10.0.2.2:5000"; // 에뮬레이터에서 로컬 서버 접속 시 사용
-    private static final String BASE_URL = "http://10.100.1.76:5001"; // 실제 네트워크에서 사용되는 서버 주소
+    private static final String BASE_URL = "http://10.100.1.88:5001"; // 실제 네트워크에서 사용되는 서버 주소
 
     private static Retrofit retrofit;
 
